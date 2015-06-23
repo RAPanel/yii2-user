@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\models;
+namespace rere\user\models;
 
 use Yii;
 use yii\db\ActiveRecord;
@@ -34,6 +34,27 @@ class Role extends ActiveRecord
     public static function tableName()
     {
         return static::getDb()->tablePrefix . "role";
+    }
+
+    /**
+     * Get list of roles for creating dropdowns
+     *
+     * @return array
+     */
+    public static function dropdown()
+    {
+        // get and cache data
+        static $dropdown;
+        if ($dropdown === null) {
+
+            // get all records from database and generate
+            $models = static::find()->all();
+            foreach ($models as $model) {
+                $dropdown[$model->id] = $model->name;
+            }
+        }
+
+        return $dropdown;
     }
 
     /**
@@ -109,26 +130,5 @@ class Role extends ActiveRecord
     {
         $roleAttribute = "can_{$permission}";
         return $this->$roleAttribute ? true : false;
-    }
-
-    /**
-     * Get list of roles for creating dropdowns
-     *
-     * @return array
-     */
-    public static function dropdown()
-    {
-        // get and cache data
-        static $dropdown;
-        if ($dropdown === null) {
-
-            // get all records from database and generate
-            $models = static::find()->all();
-            foreach ($models as $model) {
-                $dropdown[$model->id] = $model->name;
-            }
-        }
-
-        return $dropdown;
     }
 }

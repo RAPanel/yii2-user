@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\components;
+namespace rere\user\components;
 
 use Yii;
 use yii\authclient\OAuth2;
@@ -48,6 +48,28 @@ class RedditAuth extends OAuth2
     public $state = 'UnZgq3GKBUqT@2Pyu5yZu!$VHJDf3FjD';
 
     /**
+     * Add state and duration to $defaultParams
+     *
+     * @inheritdoc
+     */
+    public function buildAuthUrl(array $params = [])
+    {
+        $defaultParams = [
+            'client_id' => $this->clientId,
+            'response_type' => 'code',
+            'redirect_uri' => $this->getReturnUrl(),
+            'xoauth_displayname' => Yii::$app->name,
+            'state' => $this->state,
+            'duration' => $this->duration,
+        ];
+        if (!empty($this->scope)) {
+            $defaultParams['scope'] = $this->scope;
+        }
+
+        return $this->composeUrl($this->authUrl, array_merge($defaultParams, $params));
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defaultName()
@@ -80,28 +102,6 @@ class RedditAuth extends OAuth2
     protected function initUserAttributes()
     {
         return $this->api('me', 'GET');
-    }
-
-    /**
-     * Add state and duration to $defaultParams
-     *
-     * @inheritdoc
-     */
-    public function buildAuthUrl(array $params = [])
-    {
-        $defaultParams = [
-            'client_id' => $this->clientId,
-            'response_type' => 'code',
-            'redirect_uri' => $this->getReturnUrl(),
-            'xoauth_displayname' => Yii::$app->name,
-            'state' => $this->state,
-            'duration' => $this->duration,
-        ];
-        if (!empty($this->scope)) {
-            $defaultParams['scope'] = $this->scope;
-        }
-
-        return $this->composeUrl($this->authUrl, array_merge($defaultParams, $params));
     }
 
     /**

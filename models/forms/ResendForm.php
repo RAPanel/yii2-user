@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\models\forms;
+namespace rere\user\models\forms;
 
 use Yii;
 use yii\base\Model;
@@ -16,7 +16,7 @@ class ResendForm extends Model
     public $email;
 
     /**
-     * @var \amnah\yii2\user\models\User
+     * @var \rere\user\models\User
      */
     protected $_user = false;
 
@@ -52,7 +52,7 @@ class ResendForm extends Model
     /**
      * Get user based on email
      *
-     * @return \amnah\yii2\user\models\User|null
+     * @return \rere\user\models\User|null
      */
     public function getUser()
     {
@@ -90,7 +90,7 @@ class ResendForm extends Model
         if ($this->validate()) {
 
             // get user
-            /** @var \amnah\yii2\user\models\UserKey $userKey */
+            /** @var \rere\user\models\UserKey $userKey */
             $user    = $this->getUser();
             $userKey = Yii::$app->getModule("user")->model("UserKey");
 

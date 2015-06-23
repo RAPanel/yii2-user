@@ -1,9 +1,9 @@
 <?php
 
-use amnah\yii2\user\models\User;
-use amnah\yii2\user\models\Role;
-use yii\db\Schema;
+use rere\user\models\Role;
+use rere\user\models\User;
 use yii\db\Migration;
+use yii\db\Schema;
 
 class m150214_044831_init_user extends Migration
 {

@@ -1,16 +1,17 @@
 <?php
 
-use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Html;
+
 $user = Yii::$app->getModule("user")->model("User");
 $role = Yii::$app->getModule("user")->model("Role");
 
 /**
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
- * @var amnah\yii2\user\models\search\UserSearch $searchModel
- * @var amnah\yii2\user\models\User $user
- * @var amnah\yii2\user\models\Role $role
+ * @var rere\user\models\search\UserSearch $searchModel
+ * @var rere\user\models\User $user
+ * @var rere\user\models\Role $role
  */
 
 $this->title = Yii::t('user', 'Users');

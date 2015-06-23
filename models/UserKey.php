@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\models;
+namespace rere\user\models;
 
 use Yii;
 use yii\db\ActiveRecord;
@@ -60,48 +60,6 @@ class UserKey extends ActiveRecord
         ];
     }
     */
-
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id'           => Yii::t('user', 'ID'),
-            'user_id'      => Yii::t('user', 'User ID'),
-            'type'         => Yii::t('user', 'Type'),
-            'key_value'    => Yii::t('user', 'Key'),
-            'create_time'  => Yii::t('user', 'Create Time'),
-            'consume_time' => Yii::t('user', 'Consume Time'),
-            'expire_time'  => Yii::t('user', 'Expire Time'),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'timestamp' => [
-                'class'      => 'yii\behaviors\TimestampBehavior',
-                'value'      => function () { return date("Y-m-d H:i:s"); },
-                'attributes' => [
-                    // set only create_time because there is no update_time
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['create_time'],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUser()
-    {
-        $user = Yii::$app->getModule("user")->model("User");
-        return $this->hasOne($user::className(), ['id' => 'user_id']);
-    }
 
     /**
      * Generate/reuse a userKey
@@ -168,6 +126,50 @@ class UserKey extends ActiveRecord
             ])
             ->andWhere("([[expire_time]] >= '$now' or [[expire_time]] is NULL)")
             ->one();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => Yii::t('user', 'ID'),
+            'user_id' => Yii::t('user', 'User ID'),
+            'type' => Yii::t('user', 'Type'),
+            'key_value' => Yii::t('user', 'Key'),
+            'create_time' => Yii::t('user', 'Create Time'),
+            'consume_time' => Yii::t('user', 'Consume Time'),
+            'expire_time' => Yii::t('user', 'Expire Time'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => 'yii\behaviors\TimestampBehavior',
+                'value' => function () {
+                    return date("Y-m-d H:i:s");
+                },
+                'attributes' => [
+                    // set only create_time because there is no update_time
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['create_time'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        $user = Yii::$app->getModule("user")->model("User");
+        return $this->hasOne($user::className(), ['id' => 'user_id']);
     }
 
     /**

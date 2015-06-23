@@ -1,14 +1,14 @@
 <?php
 
-namespace amnah\yii2\user\models;
+namespace rere\user\models;
 
+use ReflectionClass;
 use Yii;
 use yii\db\ActiveRecord;
-use yii\web\IdentityInterface;
+use yii\helpers\Inflector;
 use yii\swiftmailer\Mailer;
 use yii\swiftmailer\Message;
-use yii\helpers\Inflector;
-use ReflectionClass;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "tbl_user".
@@ -71,13 +71,59 @@ class User extends ActiveRecord implements IdentityInterface
      * @var array Permission cache array
      */
     protected $_access = [];
-    
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return static::getDb()->tablePrefix . "user";
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return static::findOne(["api_key" => $token]);
+    }
+
+    /**
+     * Get list of statuses for creating dropdowns
+     *
+     * @return array
+     */
+    public static function statusDropdown()
+    {
+        // get data if needed
+        static $dropdown;
+        if ($dropdown === null) {
+
+            // create a reflection class to get constants
+            $reflClass = new ReflectionClass(get_called_class());
+            $constants = $reflClass->getConstants();
+
+            // check for status constants (e.g., STATUS_ACTIVE)
+            foreach ($constants as $constantName => $constantValue) {
+
+                // add prettified name to dropdown
+                if (strpos($constantName, "STATUS_") === 0) {
+                    $prettyName = str_replace("STATUS_", "", $constantName);
+                    $prettyName = Inflector::humanize(strtolower($prettyName));
+                    $dropdown[$constantValue] = $prettyName;
+                }
+            }
+        }
+
+        return $dropdown;
     }
 
     /**
@@ -125,6 +171,18 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Stick with 1 user:1 profile
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    /*
+    public function getProfiles()
+    {
+        return $this->hasMany(Profile::className(), ['user_id' => 'id']);
+    }
+    */
+
+    /**
      * Validate current password (account page)
      */
     public function validateCurrentPassword()
@@ -132,6 +190,17 @@ class User extends ActiveRecord implements IdentityInterface
         if (!$this->validatePassword($this->currentPassword)) {
             $this->addError("currentPassword", "Current password incorrect");
         }
+    }
+
+    /**
+     * Verify password
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password);
     }
 
     /**
@@ -182,18 +251,6 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Stick with 1 user:1 profile
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    /*
-    public function getProfiles()
-    {
-        return $this->hasMany(Profile::className(), ['user_id' => 'id']);
-    }
-    */
-
-    /**
      * @return \yii\db\ActiveQuery
      */
     public function getProfile()
@@ -231,30 +288,6 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id)
-    {
-        return static::findOne($id);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        return static::findOne(["api_key" => $token]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getAuthKey()
     {
         return $this->auth_key;
@@ -266,17 +299,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function validateAuthKey($authKey)
     {
         return $this->auth_key === $authKey;
-    }
-
-    /**
-     * Verify password
-     *
-     * @param string $password
-     * @return bool
-     */
-    public function validatePassword($password)
-    {
-        return Yii::$app->security->validatePassword($password, $this->password);
     }
 
     /**
@@ -440,6 +462,14 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * Get display name for the user
      *
      * @var string $default
@@ -498,35 +528,5 @@ class User extends ActiveRecord implements IdentityInterface
         // restore view path and return result
         $mailer->viewPath = $oldViewPath;
         return $result;
-    }
-
-    /**
-     * Get list of statuses for creating dropdowns
-     *
-     * @return array
-     */
-    public static function statusDropdown()
-    {
-        // get data if needed
-        static $dropdown;
-        if ($dropdown === null) {
-
-            // create a reflection class to get constants
-            $reflClass = new ReflectionClass(get_called_class());
-            $constants = $reflClass->getConstants();
-
-            // check for status constants (e.g., STATUS_ACTIVE)
-            foreach ($constants as $constantName => $constantValue) {
-
-                // add prettified name to dropdown
-                if (strpos($constantName, "STATUS_") === 0) {
-                    $prettyName               = str_replace("STATUS_", "", $constantName);
-                    $prettyName               = Inflector::humanize(strtolower($prettyName));
-                    $dropdown[$constantValue] = $prettyName;
-                }
-            }
-        }
-
-        return $dropdown;
     }
 }

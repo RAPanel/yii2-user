@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user;
+namespace rere\user;
 
 use Yii;
 use yii\base\InvalidConfigException;
@@ -14,92 +14,76 @@ use yii\db\ActiveRecord;
 class Module extends \yii\base\Module
 {
     /**
-     * @var string Module version
-     */
-    protected $_version = "3.0.0-RC";
-
-    /**
      * @var string Alias for module
      */
     public $alias = "@user";
-
     /**
      * @var bool If true, users are required to enter an email
      */
     public $requireEmail = true;
-
     /**
      * @var bool If true, users are required to enter a username
      */
     public $requireUsername = false;
-
     /**
      * @var bool If true, users can enter an email. This is automatically set to true if $requireEmail = true
      */
     public $useEmail = true;
-
     /**
      * @var bool If true, users can enter a username. This is automatically set to true if $requireUsername = true
      */
     public $useUsername = true;
-
     /**
      * @var bool If true, users can log in using their email
      */
     public $loginEmail = true;
-
     /**
      * @var bool If true, users can log in using their username
      */
     public $loginUsername = true;
-
     /**
      * @var int Login duration
      */
-    public $loginDuration = 2592000; // 1 month
-
+    public $loginDuration = 2592000;
     /**
      * @var array|string|null Url to redirect to after logging in. If null, will redirect to home page. Note that
      *                        AccessControl takes precedence over this (see [[yii\web\User::loginRequired()]])
      */
-    public $loginRedirect = null;
-
+    public $loginRedirect = null; // 1 month
     /**
      * @var array|string|null Url to redirect to after logging out. If null, will redirect to home page
      */
     public $logoutRedirect = null;
-
     /**
      * @var bool If true, users will have to confirm their email address after registering (= email activation)
      */
     public $emailConfirmation = true;
-
     /**
      * @var bool If true, users will have to confirm their email address after changing it on the account page
      */
     public $emailChangeConfirmation = true;
-
     /**
      * @var string Time before userKeys expire (currently only used for password resets)
      */
     public $resetKeyExpiration = "48 hours";
-
     /**
      * @var string Email view path
      */
     public $emailViewPath = "@user/mail";
-
     /**
-     * @var array Model classes, e.g., ["User" => "amnah\yii2\user\models\User"]
+     * @var array Model classes, e.g., ["User" => "rere\user\models\User"]
      * Usage:
      *   $user = Yii::$app->getModule("user")->model("User", $config);
      *   (equivalent to)
-     *   $user = new \amnah\yii2\user\models\User($config);
+     *   $user = new \rere\user\models\User($config);
      *
      * The model classes here will be merged with/override the [[getDefaultModelClasses()|default ones]]
      */
     public $modelClasses = [];
-
+    /**
+     * @var string Module version
+     */
+    protected $_version = "3.0.0-RC";
     /**
      * @var array Storage for models based on $modelClasses
      */
@@ -177,8 +161,8 @@ class Module extends \yii\base\Module
         // this typically causes problems in the yii2-advanced app
         // when people set it in "common/config" instead of "frontend/config" and/or "backend/config"
         //   -> this results in users failing to login without any feedback/error message
-        if (!Yii::$app->request->isConsoleRequest && !Yii::$app->get("user") instanceof \amnah\yii2\user\components\User) {
-            throw new InvalidConfigException('Yii::$app->user is not set properly. It needs to extend \amnah\yii2\user\components\User');
+        if (!Yii::$app->request->isConsoleRequest && !Yii::$app->get("user") instanceof \rere\user\components\User) {
+            throw new InvalidConfigException('Yii::$app->user is not set properly. It needs to extend \rere\user\components\User');
         }
     }
 
@@ -188,15 +172,15 @@ class Module extends \yii\base\Module
     protected function getDefaultModelClasses()
     {
         return [
-            'User'       => 'amnah\yii2\user\models\User',
-            'Profile'    => 'amnah\yii2\user\models\Profile',
-            'Role'       => 'amnah\yii2\user\models\Role',
-            'UserKey'    => 'amnah\yii2\user\models\UserKey',
-            'UserAuth'   => 'amnah\yii2\user\models\UserAuth',
-            'ForgotForm' => 'amnah\yii2\user\models\forms\ForgotForm',
-            'LoginForm'  => 'amnah\yii2\user\models\forms\LoginForm',
-            'ResendForm' => 'amnah\yii2\user\models\forms\ResendForm',
-            'UserSearch' => 'amnah\yii2\user\models\search\UserSearch',
+            'User' => 'rere\user\models\User',
+            'Profile' => 'rere\user\models\Profile',
+            'Role' => 'rere\user\models\Role',
+            'UserKey' => 'rere\user\models\UserKey',
+            'UserAuth' => 'rere\user\models\UserAuth',
+            'ForgotForm' => 'rere\user\models\forms\ForgotForm',
+            'LoginForm' => 'rere\user\models\forms\LoginForm',
+            'ResendForm' => 'rere\user\models\forms\ResendForm',
+            'UserSearch' => 'rere\user\models\search\UserSearch',
         ];
     }
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace amnah\yii2\user\controllers;
+namespace rere\user\controllers;
 
 use Yii;
-use yii\web\HttpException;
 use yii\console\Controller;
+use yii\web\HttpException;
 
 /**
  * Copy user module to your app/modules folder
@@ -117,7 +117,7 @@ class CopyController extends Controller
 
             // get file content and replace namespace
             $content = file_get_contents($file);
-            $content = str_replace("amnah\\yii2\\user", $namespace, $content);
+            $content = str_replace("rere\\user", $namespace, $content);
 
             // save and store result
             if (file_exists($newFilePath)) {

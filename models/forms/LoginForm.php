@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\models\forms;
+namespace rere\user\models\forms;
 
 use Yii;
 use yii\base\Model;
@@ -26,7 +26,7 @@ class LoginForm extends Model
     public $rememberMe = true;
 
     /**
-     * @var \amnah\yii2\user\models\User
+     * @var \rere\user\models\User
      */
     protected $_user = false;
 
@@ -62,56 +62,9 @@ class LoginForm extends Model
     }
 
     /**
-     * Validate user status
-     */
-    public function validateUserStatus()
-    {
-        // check for ban status
-        $user = $this->getUser();
-        if ($user->ban_time) {
-            $this->addError("username", Yii::t("user", "User is banned - {banReason}", [
-                "banReason" => $user->ban_reason,
-            ]));
-        }
-
-        // check status and resend email if inactive
-        if ($user->status == $user::STATUS_INACTIVE) {
-
-            /** @var \amnah\yii2\user\models\UserKey $userKey */
-            $userKey = Yii::$app->getModule("user")->model("UserKey");
-            $userKey = $userKey::generate($user->id, $userKey::TYPE_EMAIL_ACTIVATE);
-            $user->sendEmailConfirmation($userKey);
-            $this->addError("username", Yii::t("user", "Confirmation email resent"));
-        }
-    }
-
-    /**
-     * Validate password
-     */
-    public function validatePassword()
-    {
-        // skip if there are already errors
-        if ($this->hasErrors()) {
-            return;
-        }
-
-        /** @var \amnah\yii2\user\models\User $user */
-
-        // check if 1) user registered using social auth and 2) password is correct
-        $user = $this->getUser();
-        if (!$user->password && $user->userAuths) {
-            $userAuths = $user->userAuths;
-            $userAuth = reset($userAuths);
-            $this->addError("userAuth", $userAuth->provider);
-        } elseif (!$user->validatePassword($this->password)) {
-            $this->addError("password", Yii::t("user", "Incorrect password"));
-        }
-    }
-
-    /**
      * Get user based on email and/or username
      *
-     * @return \amnah\yii2\user\models\User|null
+     * @return \rere\user\models\User|null
      */
     public function getUser()
     {
@@ -134,6 +87,53 @@ class LoginForm extends Model
 
         // return stored user
         return $this->_user;
+    }
+
+    /**
+     * Validate user status
+     */
+    public function validateUserStatus()
+    {
+        // check for ban status
+        $user = $this->getUser();
+        if ($user->ban_time) {
+            $this->addError("username", Yii::t("user", "User is banned - {banReason}", [
+                "banReason" => $user->ban_reason,
+            ]));
+        }
+
+        // check status and resend email if inactive
+        if ($user->status == $user::STATUS_INACTIVE) {
+
+            /** @var \rere\user\models\UserKey $userKey */
+            $userKey = Yii::$app->getModule("user")->model("UserKey");
+            $userKey = $userKey::generate($user->id, $userKey::TYPE_EMAIL_ACTIVATE);
+            $user->sendEmailConfirmation($userKey);
+            $this->addError("username", Yii::t("user", "Confirmation email resent"));
+        }
+    }
+
+    /**
+     * Validate password
+     */
+    public function validatePassword()
+    {
+        // skip if there are already errors
+        if ($this->hasErrors()) {
+            return;
+        }
+
+        /** @var \rere\user\models\User $user */
+
+        // check if 1) user registered using social auth and 2) password is correct
+        $user = $this->getUser();
+        if (!$user->password && $user->userAuths) {
+            $userAuths = $user->userAuths;
+            $userAuth = reset($userAuths);
+            $this->addError("userAuth", $userAuth->provider);
+        } elseif (!$user->validatePassword($this->password)) {
+            $this->addError("password", Yii::t("user", "Incorrect password"));
+        }
     }
 
     /**

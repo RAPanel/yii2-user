@@ -1,6 +1,6 @@
 <?php
 
-namespace amnah\yii2\user\components;
+namespace rere\user\components;
 
 use Yii;
 
@@ -12,7 +12,7 @@ class User extends \yii\web\User
     /**
      * @inheritdoc
      */
-    public $identityClass = 'amnah\yii2\user\models\User';
+    public $identityClass = 'rere\user\models\User';
 
     /**
      * @inheritdoc
@@ -32,7 +32,7 @@ class User extends \yii\web\User
         parent::init();
 
         // check if user is banned. if so, log user out and redirect home
-        /** @var \amnah\yii2\user\models\User $user */
+        /** @var \rere\user\models\User $user */
         $user = $this->getIdentity();
         if ($user && $user->ban_time) {
             $this->logout();
@@ -56,7 +56,7 @@ class User extends \yii\web\User
      */
     public function afterLogin($identity, $cookieBased, $duration)
     {
-        /** @var \amnah\yii2\user\models\User $identity */
+        /** @var \rere\user\models\User $identity */
         $identity->updateLoginMeta();
         parent::afterLogin($identity, $cookieBased, $duration);
     }
@@ -69,7 +69,7 @@ class User extends \yii\web\User
      */
     public function getDisplayName($default = "")
     {
-        /** @var \amnah\yii2\user\models\User $user */
+        /** @var \rere\user\models\User $user */
         $user = $this->getIdentity();
         return $user ? $user->getDisplayName($default) : "";
     }
@@ -93,7 +93,7 @@ class User extends \yii\web\User
         }
 
         // otherwise use our own custom permission (via the role table)
-        /** @var \amnah\yii2\user\models\User $user */
+        /** @var \rere\user\models\User $user */
         $user = $this->getIdentity();
         return $user ? $user->can($permissionName) : false;
     }

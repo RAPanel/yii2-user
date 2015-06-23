@@ -1,15 +1,15 @@
 <?php
 
-namespace amnah\yii2\user\controllers;
+namespace rere\user\controllers;
 
+use rere\user\models\User;
+use rere\user\models\UserAuth;
+use rere\user\models\UserKey;
 use Yii;
-use amnah\yii2\user\models\User;
-use amnah\yii2\user\models\UserKey;
-use amnah\yii2\user\models\UserAuth;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * AdminController implements the CRUD actions for User model.
@@ -52,7 +52,7 @@ class AdminController extends Controller
      */
     public function actionIndex()
     {
-        /** @var \amnah\yii2\user\models\search\UserSearch $searchModel */
+        /** @var \rere\user\models\search\UserSearch $searchModel */
         $searchModel = Yii::$app->getModule("user")->model("UserSearch");
         $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
 
@@ -76,6 +76,25 @@ class AdminController extends Controller
     }
 
     /**
+     * Find the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     *
+     * @param string $id
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        /** @var \rere\user\models\User $user */
+        $user = Yii::$app->getModule("user")->model("User");
+        if (($user = $user::findOne($id)) !== null) {
+            return $user;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    /**
      * Create a new User model. If creation is successful, the browser will
      * be redirected to the 'view' page.
      *
@@ -83,8 +102,8 @@ class AdminController extends Controller
      */
     public function actionCreate()
     {
-        /** @var \amnah\yii2\user\models\User $user */
-        /** @var \amnah\yii2\user\models\Profile $profile */
+        /** @var \rere\user\models\User $user */
+        /** @var \rere\user\models\Profile $profile */
 
         $user = Yii::$app->getModule("user")->model("User");
         $user->setScenario("admin");
@@ -151,24 +170,5 @@ class AdminController extends Controller
         $user->delete();
 
         return $this->redirect(['index']);
-    }
-
-    /**
-     * Find the User model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     *
-     * @param string $id
-     * @return User the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        /** @var \amnah\yii2\user\models\User $user */
-        $user = Yii::$app->getModule("user")->model("User");
-        if (($user = $user::findOne($id)) !== null) {
-            return $user;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
     }
 }

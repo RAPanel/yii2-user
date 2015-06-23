@@ -75,11 +75,11 @@ These are the module properties and their default values
     public $emailViewPath = "@user/mail";
 
     /**
-     * @var array Model classes, e.g., ["User" => "amnah\yii2\user\models\User"]
+     * @var array Model classes, e.g., ["User" => "rere\user\models\User"]
      * Usage:
      *   $user = Yii::$app->getModule("user")->model("User", $config);
      *   (equivalent to)
-     *   $user = new \amnah\yii2\user\models\User($config);
+     *   $user = new \rere\user\models\User($config);
      *
      * The model classes here will be merged with/override the [[_getDefaultModelClasses()|default ones]]
      */
