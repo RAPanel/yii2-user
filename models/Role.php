@@ -88,8 +88,8 @@ class Role extends ActiveRecord
         return [
             'id'          => Yii::t('user', 'ID'),
             'name'        => Yii::t('user', 'Name'),
-            'create_time' => Yii::t('user', 'Create Time'),
-            'update_time' => Yii::t('user', 'Update Time'),
+            'created_at' => Yii::t('user', 'Create Time'),
+            'updated_at' => Yii::t('user', 'Update Time'),
             'can_admin'   => Yii::t('user', 'Can Admin'),
         ];
     }
@@ -104,8 +104,8 @@ class Role extends ActiveRecord
                 'class'      => 'yii\behaviors\TimestampBehavior',
                 'value'      => function () { return date("Y-m-d H:i:s"); },
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'create_time',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'update_time',
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
                 ],
             ],
         ];

@@ -25,8 +25,8 @@ use yii\web\IdentityInterface;
  * @property string    $login_ip
  * @property string    $login_time
  * @property string    $create_ip
- * @property string    $create_time
- * @property string    $update_time
+ * @property string    $created_at
+ * @property string    $updated_at
  * @property string    $ban_time
  * @property string    $ban_reason
  *
@@ -221,8 +221,8 @@ class User extends ActiveRecord implements IdentityInterface
             'login_ip'    => Yii::t('user', 'Login Ip'),
             'login_time'  => Yii::t('user', 'Login Time'),
             'create_ip'   => Yii::t('user', 'Create Ip'),
-            'create_time' => Yii::t('user', 'Create Time'),
-            'update_time' => Yii::t('user', 'Update Time'),
+            'created_at' => Yii::t('user', 'Create Time'),
+            'updated_at' => Yii::t('user', 'Update Time'),
             'ban_time'    => Yii::t('user', 'Ban Time'),
             'ban_reason'  => Yii::t('user', 'Ban Reason'),
 
@@ -243,8 +243,8 @@ class User extends ActiveRecord implements IdentityInterface
                 'class'      => 'yii\behaviors\TimestampBehavior',
                 'value'      => function () { return date("Y-m-d H:i:s"); },
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'create_time',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'update_time',
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
                 ],
             ],
         ];

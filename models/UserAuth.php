@@ -57,8 +57,8 @@ class UserAuth extends \yii\db\ActiveRecord
             'provider'            => Yii::t('user', 'Provider'),
             'provider_id'         => Yii::t('user', 'Provider ID'),
             'provider_attributes' => Yii::t('user', 'Provider Attributes'),
-            'create_time'         => Yii::t('user', 'Create Time'),
-            'update_time'         => Yii::t('user', 'Update Time'),
+            'created_at'         => Yii::t('user', 'Create Time'),
+            'updated_at'         => Yii::t('user', 'Update Time'),
         ];
     }
 
@@ -72,8 +72,8 @@ class UserAuth extends \yii\db\ActiveRecord
                 'class'      => 'yii\behaviors\TimestampBehavior',
                 'value'      => function () { return date("Y-m-d H:i:s"); },
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'create_time',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'update_time',
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
                 ],
             ],
         ];

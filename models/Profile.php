@@ -23,7 +23,7 @@ class Profile extends ActiveRecord
      */
     public static function tableName()
     {
-        return static::getDb()->tablePrefix . "profile";
+        return static::getDb()->tablePrefix . "user_profile";
     }
 
     /**
@@ -47,8 +47,8 @@ class Profile extends ActiveRecord
         return [
             'id'          => Yii::t('user', 'ID'),
             'user_id'     => Yii::t('user', 'User ID'),
-            'create_time' => Yii::t('user', 'Create Time'),
-            'update_time' => Yii::t('user', 'Update Time'),
+            'created_at' => Yii::t('user', 'Create Time'),
+            'updated_at' => Yii::t('user', 'Update Time'),
             'full_name'   => Yii::t('user', 'Full Name'),
         ];
     }
@@ -63,8 +63,8 @@ class Profile extends ActiveRecord
                 'class'      => 'yii\behaviors\TimestampBehavior',
                 'value'      => function () { return date("Y-m-d H:i:s"); },
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'create_time',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'update_time',
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
                 ],
             ],
         ];
