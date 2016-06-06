@@ -1,20 +1,19 @@
 <?php
 
-namespace rere\user\models;
+namespace ra\models;
 
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "tbl_user_auth".
+ * This is the model class for table "{{%user_auth}}".
  *
- * @property string $id
- * @property string $user_id
+ * @property integer $id
+ * @property integer $user_id
  * @property string $provider
  * @property string $provider_id
  * @property string $provider_attributes
- * @property string $create_time
- * @property string $update_time
+ * @property string $updated_at
+ * @property string $created_at
  *
  * @property User $user
  */
@@ -25,26 +24,22 @@ class UserAuth extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return static::getDb()->tablePrefix . "user_auth";
+        return '{{%user_auth}}';
     }
 
     /**
-     * No inputs are used for userAuths
-     *
      * @inheritdoc
      */
-    /*
     public function rules()
     {
         return [
             [['user_id', 'provider', 'provider_id', 'provider_attributes'], 'required'],
             [['user_id'], 'integer'],
             [['provider_attributes'], 'string'],
-            [['create_time', 'update_time'], 'safe'],
-            [['provider_id', 'provider'], 'string', 'max' => 255]
+            [['updated_at', 'created_at'], 'safe'],
+            [['provider', 'provider_id'], 'string', 'max' => 255]
         ];
     }
-    */
 
     /**
      * @inheritdoc
@@ -52,30 +47,13 @@ class UserAuth extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id'                  => Yii::t('user', 'ID'),
-            'user_id'             => Yii::t('user', 'User ID'),
-            'provider'            => Yii::t('user', 'Provider'),
-            'provider_id'         => Yii::t('user', 'Provider ID'),
-            'provider_attributes' => Yii::t('user', 'Provider Attributes'),
-            'created_at'         => Yii::t('user', 'Create Time'),
-            'updated_at'         => Yii::t('user', 'Update Time'),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'timestamp' => [
-                'class'      => 'yii\behaviors\TimestampBehavior',
-                'value'      => function () { return date("Y-m-d H:i:s"); },
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
-                ],
-            ],
+            'id' => Yii::t('ra', 'ID'),
+            'user_id' => Yii::t('ra', 'User ID'),
+            'provider' => Yii::t('ra', 'Provider'),
+            'provider_id' => Yii::t('ra', 'Provider ID'),
+            'provider_attributes' => Yii::t('ra', 'Provider Attributes'),
+            'updated_at' => Yii::t('ra', 'Updated At'),
+            'created_at' => Yii::t('ra', 'Created At'),
         ];
     }
 
@@ -87,37 +65,18 @@ class UserAuth extends \yii\db\ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
-    /**
-     * Set user id
-     *
-     * @param int $userId
-     * @return static
-     */
-    public function setUser($userId)
+    public static function add($provider, $providerId, $data)
     {
-        $this->user_id = $userId;
-        return $this;
-    }
-
-    /**
-     * Set provider attributes
-     *
-     * @param array $attributes
-     * @return static
-     */
-    public function setProviderAttributes($attributes)
-    {
-        $this->provider_attributes = json_encode($attributes);
-        return $this;
-    }
-
-    /**
-     * Get provider attributes
-     *
-     * @return array
-     */
-    public function getProviderAttributes()
-    {
-        return json_decode($this->provider_attributes, true);
+        $search = [
+            'provider' => $provider,
+            'provider_id' => $providerId,
+        ];
+        $model = self::findOne($search);
+        if (!$model) $model = new self($search);
+        $model->setAttributes([
+            'user_id' => Yii::$app->user->id ?: ($model->user_id ? $model->user_id : 1),
+            'provider_attributes' => serialize($data),
+        ]);
+        $model->save(false);
     }
 }

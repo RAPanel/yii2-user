@@ -1,54 +1,77 @@
 <?php
 
-namespace rere\user\models;
+namespace ra\models;
 
 use Yii;
-use yii\db\ActiveRecord;
+use yii\db\Expression;
+use yii\web\HttpException;
 
 /**
- * This is the model class for table "tbl_user_key".
+ * This is the model class for table "{{%user_key}}".
  *
  * @property integer $id
  * @property integer $user_id
  * @property integer $type
- * @property string  $key_value
- * @property string  $create_time
- * @property string  $consume_time
- * @property string  $expire_time
+ * @property string $key_value
+ * @property string $create_time
+ * @property string $consume_time
+ * @property string $expire_time
  *
- * @property User    $user
+ * @property User $user
  */
-class UserKey extends ActiveRecord
+class UserKey extends \yii\db\ActiveRecord
 {
-    /**
-     * @var int Key for email activations (for registrations)
-     */
-    const TYPE_EMAIL_ACTIVATE = 1;
-
-    /**
-     * @var int Key for email changes (=updating account page)
-     */
-    const TYPE_EMAIL_CHANGE = 2;
-
-    /**
-     * @var int Key for password resets
-     */
+    const TYPE_EMAIL_CHANGE = 1;
+    const TYPE_PASSWORD_CHANGE = 2;
     const TYPE_PASSWORD_RESET = 3;
+    const TYPE_OTHER = 9;
 
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return static::getDb()->tablePrefix . "user_key";
+        return '{{%user_key}}';
+    }
+
+    public static function generate($type, $userId, $expire = 60 * 5)
+    {
+
+        $model = new self();
+        $model->setAttributes([
+            'user_id' => $userId,
+            'type' => $type,
+            'key_value' => uniqid(uniqid()),
+            'create_time' => new Expression('now()'),
+            'expire_time' => new Expression('FROM_UNIXTIME(' . (time() + $expire) . ')'),
+        ]);
+        if ($model->save())
+            return $model->key_value;
+        else
+            throw new HttpException(400, print_r($model->errors, 1));
+
+        return false;
+    }
+
+    public static function add($type, $key, $expire)
+    {
+
+        $search = [
+            'type' => $type,
+            'key_value' => $key,
+        ];
+        $model = self::findOne($search);
+        if (!$model) $model = new self($search);
+        $model->setAttributes([
+            'user_id' => Yii::$app->user->id ?: ($model->user_id ? $model->user_id : 1),
+            'expire_time' => is_int($expire) ? new Expression('FROM_UNIXTIME(' . $expire . ')') : $expire,
+        ]);
+        return $model->save(false);
     }
 
     /**
-     * No inputs are used for userKeys
-     *
      * @inheritdoc
      */
-    /*
     public function rules()
     {
         return [
@@ -59,74 +82,6 @@ class UserKey extends ActiveRecord
             [['key_value'], 'unique']
         ];
     }
-    */
-
-    /**
-     * Generate/reuse a userKey
-     *
-     * @param int    $userId
-     * @param int    $type
-     * @param string $expireTime
-     * @return static
-     */
-    public static function generate($userId, $type, $expireTime = null)
-    {
-        // attempt to find existing record
-        // otherwise create new
-        $model = static::findActiveByUser($userId, $type);
-        if (!$model) {
-            $model = new static();
-        }
-
-        // set/update data
-        $model->user_id     = $userId;
-        $model->type        = $type;
-        $model->create_time = date("Y-m-d H:i:s");
-        $model->expire_time = $expireTime;
-        $model->key_value   = Yii::$app->security->generateRandomString();
-        $model->save(false);
-        return $model;
-    }
-
-    /**
-     * Find an active userKey by userId
-     *
-     * @param int       $userId
-     * @param array|int $type
-     * @return static
-     */
-    public static function findActiveByUser($userId, $type)
-    {
-        $now = date("Y-m-d H:i:s");
-        return static::find()
-            ->where([
-                "user_id"      => $userId,
-                "type"         => $type,
-                "consume_time" => null,
-            ])
-            ->andWhere("([[expire_time]] >= '$now' or [[expire_time]] is NULL)")
-            ->one();
-    }
-
-    /**
-     * Find an active userKey by key
-     *
-     * @param string    $key
-     * @param array|int $type
-     * @return static
-     */
-    public static function findActiveByKey($key, $type)
-    {
-        $now = date("Y-m-d H:i:s");
-        return static::find()
-            ->where([
-                "key_value"    => $key,
-                "type"         => $type,
-                "consume_time" => null,
-            ])
-            ->andWhere("([[expire_time]] >= '$now' or [[expire_time]] is NULL)")
-            ->one();
-    }
 
     /**
      * @inheritdoc
@@ -134,32 +89,13 @@ class UserKey extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('user', 'ID'),
-            'user_id' => Yii::t('user', 'User ID'),
-            'type' => Yii::t('user', 'Type'),
-            'key_value' => Yii::t('user', 'Key'),
-            'create_time' => Yii::t('user', 'Create Time'),
-            'consume_time' => Yii::t('user', 'Consume Time'),
-            'expire_time' => Yii::t('user', 'Expire Time'),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'timestamp' => [
-                'class' => 'yii\behaviors\TimestampBehavior',
-                'value' => function () {
-                    return date("Y-m-d H:i:s");
-                },
-                'attributes' => [
-                    // set only create_time because there is no update_time
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['create_time'],
-                ],
-            ],
+            'id' => Yii::t('ra', 'ID'),
+            'user_id' => Yii::t('ra', 'User ID'),
+            'type' => Yii::t('ra', 'Type'),
+            'key_value' => Yii::t('ra', 'Key Value'),
+            'create_time' => Yii::t('ra', 'Create Time'),
+            'consume_time' => Yii::t('ra', 'Consume Time'),
+            'expire_time' => Yii::t('ra', 'Expire Time'),
         ];
     }
 
@@ -168,31 +104,17 @@ class UserKey extends ActiveRecord
      */
     public function getUser()
     {
-        $user = Yii::$app->getModule("user")->model("User");
-        return $this->hasOne($user::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
-    /**
-     * Consume userKey record
-     *
-     * @return static
-     */
-    public function consume()
+    public function behaviors()
     {
-        $this->consume_time = date("Y-m-d H:i:s");
-        $this->save(false);
-        return $this;
-    }
-
-    /**
-     * Expire userKey record
-     *
-     * @return static
-     */
-    public function expire()
-    {
-        $this->expire_time = date("Y-m-d H:i:s");
-        $this->save(false);
-        return $this;
+        return [
+            [
+                'class' => '\yii\behaviors\TimestampBehavior',
+                'createdAtAttribute' => 'create_time',
+                'updatedAtAttribute' => false,
+            ]
+        ];
     }
 }
